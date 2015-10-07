@@ -13,7 +13,7 @@ void loop() {
   outputValue = map(sensorValue, 0, 1023, 0, 255);
   analogWrite(analogOutPin, outputValue);
 
-  Serial.print(F("sensor = " ));
+  Serial.print(("sensor = " ));
   Serial.println(sensorValue);
 
   delay(1000);
