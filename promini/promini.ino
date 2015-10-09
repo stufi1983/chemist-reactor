@@ -11,6 +11,7 @@ byte bytes[16];
 byte byteNum = 0;
 
 const int ledPin =  13;      // the number of the LED pin
+bool show = false;
 
 int lcdCur = 0;
 int ledState = LOW;             // ledState used to set the LED
@@ -22,7 +23,7 @@ void setup() {
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
-  Serial.println(F("Teknik Elektro!"));
+  Serial.println(F("Loading...!"));
 
   mySerial.begin(300);
 
@@ -30,7 +31,12 @@ void setup() {
 
   lcd.begin(COL, ROW);
   lcd.setCursor(0, 0);
-  lcd.print(F("Teknik Elektro!"));
+  lcd.print(F("Loading...!"));
+
+  for (byte i = 0; i < COL; i++) {
+    bytes[i] = 0x20;
+  }
+
 }
 byte buff = 0;
 void loop() { // run over and over
@@ -39,30 +45,42 @@ void loop() { // run over and over
   if (mySerial.available()) {
 
     buff = mySerial.read();
-    if (byteNum < COL) {
-      bytes[byteNum] = buff;
-      byteNum++;
+    if (buff != 0x0D && buff != 0x0A) {
+      if (byteNum < COL) {
+        bytes[byteNum] = buff;
+        byteNum++;
+      }
     }
+
+    if (buff == 12) {
+      show = true;
+    }
+  }
+
+  if (show) {
+    show = false;
 
 #ifdef  DEBUGLCD
-    if (buff == 12) {
-
-      if (lcdCur == 0) {
-        lcdCur = 1;
-      } else {
-        lcdCur = 0;
-      }
-
-      lcd.setCursor(0, lcdCur);
-      for (byte i = 0; i < COL; i++) {
-        lcd.write(bytes[i]);
-        bytes[i] = 0x20;
-      }
-
-      byteNum = 0;
+    if (lcdCur == 0) {
+      lcdCur = 1;
+    } else {
+      lcdCur = 0;
     }
+
+    lcd.setCursor(0, lcdCur);
+    for (byte i = 0; i < COL; i++) {
+
+      if (i < byteNum - 1) {
+        lcd.write(bytes[i]);
+      }
+      bytes[i] = 0x00;
+    }
+
 #endif
+    byteNum = 0;
+
   }
+
   /*
     if (byteNum > 0) {
       for (byte i = 0; i < 16; i++) {

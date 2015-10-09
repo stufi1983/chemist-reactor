@@ -1,11 +1,12 @@
-const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
+//ATMega8535 8 MHz
+const int analogInPin = 30;  // Analog input pin that the potentiometer is attached to
 const int analogOutPin = 13; // Analog output pin that the LED is attached to
 
 int sensorValue = 0;        // value read from the pot
 int outputValue = 0;        // value output to the PWM (analog out)
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(300);
 }
 
 void loop() {
@@ -14,7 +15,8 @@ void loop() {
   analogWrite(analogOutPin, outputValue);
 
   Serial.print(("sensor = " ));
-  Serial.println(sensorValue);
+  Serial.print(sensorValue);
+  Serial.write(12);
 
   delay(1000);
   analogWrite(analogOutPin, 0);
