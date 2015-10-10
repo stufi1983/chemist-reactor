@@ -2,44 +2,54 @@
 #include <LiquidCrystal.h>
 
 #define DEBUGLCD
-
-SoftwareSerial mySerial(2, 3); // RX, TX
-LiquidCrystal lcd(9, 8, 7, 6, 5, 4);
 #define COL  16
 #define ROW  2
+
+SoftwareSerial mySerial(2, 3); // RX, TX
+//LCD: 1 GND; 2 VCC; 3 CONTRAST; 5 GND; 7,8,9,10 NC
+LiquidCrystal lcd(9, 8, 7, 6, 5, 4); //4,6,11,12,13,14
+
 byte bytes[16];
 byte byteNum = 0;
 
 const int ledPin =  13;      // the number of the LED pin
-bool show = false;
-
-int lcdCur = 0;
 int ledState = LOW;             // ledState used to set the LED
 long previousMillis = 0;        // will store last time LED was updated
 long interval = 1000;           // interval at which to blink (milliseconds)
 
+bool show = false;
+int lcdCur = 0;
+byte buff = 0;
+
 void setup() {
+  
+  //ProMini to PC
   Serial.begin(57600);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
   Serial.println(F("Loading...!"));
-
+  
+  //ProMini to SisMin
   mySerial.begin(300);
 
+  //Status Led 
   pinMode(ledPin, OUTPUT);
 
+  //LCD initialisation
   lcd.begin(COL, ROW);
   lcd.setCursor(0, 0);
   lcd.print(F("Loading...!"));
 
+  //LCD buffer 
   for (byte i = 0; i < COL; i++) {
     bytes[i] = 0x20;
   }
 
 }
-byte buff = 0;
-void loop() { // run over and over
+
+
+void loop() {
 
   //forward softSerial to Serial and debug to LCD if DEBUGLCD is defined
   if (mySerial.available()) {
@@ -81,14 +91,6 @@ void loop() { // run over and over
 
   }
 
-  /*
-    if (byteNum > 0) {
-      for (byte i = 0; i < 16; i++) {
-        Serial.write(buff);
-      }
-      byteNum = 0;
-    }
-  */
   //forward Serial to softSerial
   if (Serial.available()) {
     mySerial.write(Serial.read());
