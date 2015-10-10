@@ -123,69 +123,116 @@ void loop() {
 
 void Display(byte tampil )
 {
-  displayNum = tampil-0x30;
+  displayNum = tampil-0x30; lcd.noCursor();
   switch (tampil) {
     case  1:
       lcd.setCursor(0, 0); lcd.print(F("ALAT KOAGULASI &"));
       lcd.setCursor(0, 1); lcd.print(F("DISINFEKTAN AIR "));
       break;
     case  2:
-      lcd.setCursor(0, 0); lcd.print(F(" BAK C=   RPM   "));
-      lcd.setCursor(0, 1); lcd.print(F(" BAK D=   RPM   "));
-      lcd.setCursor(7,0);
+      lcd.setCursor(0, 0); lcd.print(F(" BAK C=    RPM  "));
+      lcd.setCursor(0, 1); lcd.print(F(" BAK D=    RPM  "));
+      lcd.setCursor(8,0);
       for(byte x=0;x<3;x++){lcd.write(bytes[x+2]);}
-      lcd.setCursor(7,1);
+      lcd.setCursor(8,1);
       for(byte x=0;x<3;x++){lcd.write(bytes[x+5]);}
       break;
     case  3:
       lcd.setCursor(0, 0); lcd.print(F(" KADAR KOAGULAN "));
-      lcd.setCursor(0, 1); lcd.print(F("ENTRY=      MG/S"));
+      lcd.setCursor(0, 1); lcd.print(F("ENTRY=      mg/s"));
+      lcd.setCursor(6,1);lcd.cursor();
       break;
     case  4:
-      lcd.setCursor(0, 0); lcd.print(F(" TIMER BAK C=  S"));
-      lcd.setCursor(0, 1); lcd.print(F(" DEBIT=   L/S   "));
+      lcd.setCursor(0, 0); lcd.print(F("TIMER BAK-C=   s"));
+      lcd.setCursor(0, 1); lcd.print(F("DEBIT=     L/s  "));
+      lcd.setCursor(13,0);
+      for(byte x=0;x<2;x++){lcd.write(bytes[x+2]);}
+      lcd.setCursor(7,1);
+      for(byte x=0;x<3;x++){lcd.write(bytes[x+4]);}
       break;
     case  5:
-      lcd.setCursor(0, 0); lcd.print(F(" TIMER BAK-C=  S"));
-      lcd.setCursor(0, 1); lcd.print(F(" DEBIT=  L/S    "));
+      lcd.setCursor(0, 0); lcd.print(F("TIMER BAK-C=   s"));
+      lcd.setCursor(0, 1); lcd.print(F("VOL KOAG=   mg/L"));
+      lcd.setCursor(13,0);
+      for(byte x=0;x<2;x++){lcd.write(bytes[x+2]);}
+      lcd.setCursor(9,1);
+      for(byte x=0;x<4;x++){lcd.write(bytes[x+4]);}
       break;
     case  6:
-      lcd.setCursor(0, 0); lcd.print(F(" TIMER BAK-C=  S"));
-      lcd.setCursor(0, 1); lcd.print(F(" KATUP 1 AKTIF  "));
+      lcd.setCursor(0, 0); lcd.print(F("TIMER BAK-C=   s"));
+      lcd.setCursor(0, 1); lcd.print(F("KATUP 1 AKTIF   "));
+      lcd.setCursor(13,0);
+      for(byte x=0;x<2;x++){lcd.write(bytes[x+2]);}
       break;
     case  7:
       lcd.setCursor(0, 0); lcd.print(F("  TIMER BAK-D=  "));
-      lcd.setCursor(0, 1); lcd.print(F("   MENIT  DETIK "));
+      lcd.setCursor(0, 1); lcd.print(F("  MENIT   DETIK "));
+      lcd.setCursor(0,1);
+      for(byte x=0;x<2;x++){lcd.write(bytes[x+2]);}
+      lcd.setCursor(8,1);
+      for(byte x=0;x<2;x++){lcd.write(bytes[x+4]);}
       break;
     case  8:
-      lcd.setCursor(0, 0); lcd.print(F(" TIMER BAK-D=  M"));
-      lcd.setCursor(0, 1); lcd.print(F(" KATUP 2 AKTIF  "));
+      lcd.setCursor(0, 0); lcd.print(F("TIMER BAK-D=   M"));
+      lcd.setCursor(0, 1); lcd.print(F("KATUP 2 AKTIF   "));
+      lcd.setCursor(13,0);
+      for(byte x=0;x<2;x++){lcd.write(bytes[x+2]);}
       break;
     case  9:
       lcd.setCursor(0, 0); lcd.print(F("DAYA IKAT CHLOR "));
-      lcd.setCursor(0, 1); lcd.print(F("ENTRY=      MG/S"));
+      lcd.setCursor(0, 1); lcd.print(F("ENTRY=      mg/s"));
+      lcd.setCursor(6,1);lcd.cursor();
       break;
     case  10:
-      lcd.setCursor(0, 0); lcd.print(F("LEVEL PH AIR= , "));
-      lcd.setCursor(0, 1); lcd.print(F("VOL DISIFEKTAN= "));
+      lcd.setCursor(0, 0); lcd.print(F("LEVEL pH AIR= , "));
+      lcd.setCursor(0, 1); lcd.print(F("VOL DISINFEK=   "));
+      lcd.setCursor(13,0);
+      for(byte x=0;x<1;x++){lcd.write(bytes[x+2]);}
+      lcd.setCursor(15,0);
+      for(byte x=0;x<1;x++){lcd.write(bytes[x+3]);}
+      lcd.setCursor(13,1);
+      for(byte x=0;x<1;x++){lcd.write(bytes[x+4]);}
       break;
     case  11:
       lcd.setCursor(0, 0); lcd.print(F("  TIMER BAK-E=  "));
-      lcd.setCursor(0, 1); lcd.print(F("   MENIT  DETIK "));
+      lcd.setCursor(0, 1); lcd.print(F("   MENIT   DETIK"));
+      lcd.setCursor(0,1);
+      for(byte x=0;x<3;x++){lcd.write(bytes[x+2]);}
+      lcd.setCursor(8,1);
+      for(byte x=0;x<2;x++){lcd.write(bytes[x+5]);}
       break;
     case  12:
       lcd.setCursor(0, 0); lcd.print(F("TIMER BAK-E= JAM"));
-      lcd.setCursor(0, 1); lcd.print(F(" KATUP 3 AKTIF  "));
+      lcd.setCursor(0, 1); lcd.print(F("KATUP 3 AKTIF   "));
+      lcd.setCursor(12,0);
+      for(byte x=0;x<1;x++){lcd.write(bytes[x+2]);}
       break;
     case  13:
       lcd.setCursor(0, 0); lcd.print(F("  TIMER BAK-F=  "));
-      lcd.setCursor(0, 1); lcd.print(F("  MENIT  DETIK "));
+      lcd.setCursor(0, 1); lcd.print(F("  MENIT   DETIK "));
+      lcd.setCursor(0,1);
+      for(byte x=0;x<2;x++){lcd.write(bytes[x+2]);}
+      lcd.setCursor(8,1);
+      for(byte x=0;x<2;x++){lcd.write(bytes[x+4]);}
+      break;
       break;
     case  14:
       lcd.setCursor(0, 0); lcd.print(F("TIMER BAK-F= JAM"));
-      lcd.setCursor(0, 1); lcd.print(F(" KATUP 4 AKTIF  "));
+      lcd.setCursor(0, 1); lcd.print(F("KATUP 4 AKTIF   "));
+      lcd.setCursor(12,0);
+      for(byte x=0;x<1;x++){lcd.write(bytes[x+2]);}
       break;
     default:
       break;
   }
+}
+
+
+
+
+void DisplayValue(byte col, byte row, byte digit, byte start){
+      lcd.setCursor(col,row);
+      for(byte x=0;x<digit;x++){
+        lcd.write(bytes[x+start]);
+    }
 }
