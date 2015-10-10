@@ -1,7 +1,7 @@
 #include <SoftwareSerial.h>
 #include <LiquidCrystal.h>
 
-#define DEBUGLCD
+//#define DEBUGLCD
 #define COL  16
 #define ROW  2
 
@@ -20,31 +20,35 @@ long interval = 1000;           // interval at which to blink (milliseconds)
 bool show = false;
 int lcdCur = 0;
 byte buff = 0;
+byte displayNum=0;
 
 void setup() {
-  
+
   //ProMini to PC
   Serial.begin(57600);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
   Serial.println(F("Loading...!"));
-  
+
   //ProMini to SisMin
   mySerial.begin(300);
 
-  //Status Led 
+  //Status Led
   pinMode(ledPin, OUTPUT);
 
   //LCD initialisation
   lcd.begin(COL, ROW);
-  lcd.setCursor(0, 0);
-  lcd.print(F("Loading...!"));
 
-  //LCD buffer 
+  //LCD buffer
   for (byte i = 0; i < COL; i++) {
     bytes[i] = 0x20;
   }
+
+  lcd.setCursor(0, 0); lcd.print(F("Connecting ....."));
+  
+  //Display(1);
+  //delay(5000);
 
 }
 
@@ -69,6 +73,10 @@ void loop() {
 
   if (show) {
     show = false;
+    
+    if(bytes[0]==0x44){
+      Display(bytes[1]-0x30);
+    }
 
 #ifdef  DEBUGLCD
     if (lcdCur == 0) {
@@ -111,4 +119,73 @@ void loop() {
     digitalWrite(ledPin, ledState);
   }
 
+}
+
+void Display(byte tampil )
+{
+  displayNum = tampil-0x30;
+  switch (tampil) {
+    case  1:
+      lcd.setCursor(0, 0); lcd.print(F("ALAT KOAGULASI &"));
+      lcd.setCursor(0, 1); lcd.print(F("DISINFEKTAN AIR "));
+      break;
+    case  2:
+      lcd.setCursor(0, 0); lcd.print(F(" BAK C=   RPM   "));
+      lcd.setCursor(0, 1); lcd.print(F(" BAK D=   RPM   "));
+      lcd.setCursor(7,0);
+      for(byte x=0;x<3;x++){lcd.write(bytes[x+2]);}
+      lcd.setCursor(7,1);
+      for(byte x=0;x<3;x++){lcd.write(bytes[x+5]);}
+      break;
+    case  3:
+      lcd.setCursor(0, 0); lcd.print(F(" KADAR KOAGULAN "));
+      lcd.setCursor(0, 1); lcd.print(F("ENTRY=      MG/S"));
+      break;
+    case  4:
+      lcd.setCursor(0, 0); lcd.print(F(" TIMER BAK C=  S"));
+      lcd.setCursor(0, 1); lcd.print(F(" DEBIT=   L/S   "));
+      break;
+    case  5:
+      lcd.setCursor(0, 0); lcd.print(F(" TIMER BAK-C=  S"));
+      lcd.setCursor(0, 1); lcd.print(F(" DEBIT=  L/S    "));
+      break;
+    case  6:
+      lcd.setCursor(0, 0); lcd.print(F(" TIMER BAK-C=  S"));
+      lcd.setCursor(0, 1); lcd.print(F(" KATUP 1 AKTIF  "));
+      break;
+    case  7:
+      lcd.setCursor(0, 0); lcd.print(F("  TIMER BAK-D=  "));
+      lcd.setCursor(0, 1); lcd.print(F("   MENIT  DETIK "));
+      break;
+    case  8:
+      lcd.setCursor(0, 0); lcd.print(F(" TIMER BAK-D=  M"));
+      lcd.setCursor(0, 1); lcd.print(F(" KATUP 2 AKTIF  "));
+      break;
+    case  9:
+      lcd.setCursor(0, 0); lcd.print(F("DAYA IKAT CHLOR "));
+      lcd.setCursor(0, 1); lcd.print(F("ENTRY=      MG/S"));
+      break;
+    case  10:
+      lcd.setCursor(0, 0); lcd.print(F("LEVEL PH AIR= , "));
+      lcd.setCursor(0, 1); lcd.print(F("VOL DISIFEKTAN= "));
+      break;
+    case  11:
+      lcd.setCursor(0, 0); lcd.print(F("  TIMER BAK-E=  "));
+      lcd.setCursor(0, 1); lcd.print(F("   MENIT  DETIK "));
+      break;
+    case  12:
+      lcd.setCursor(0, 0); lcd.print(F("TIMER BAK-E= JAM"));
+      lcd.setCursor(0, 1); lcd.print(F(" KATUP 3 AKTIF  "));
+      break;
+    case  13:
+      lcd.setCursor(0, 0); lcd.print(F("  TIMER BAK-F=  "));
+      lcd.setCursor(0, 1); lcd.print(F("  MENIT  DETIK "));
+      break;
+    case  14:
+      lcd.setCursor(0, 0); lcd.print(F("TIMER BAK-F= JAM"));
+      lcd.setCursor(0, 1); lcd.print(F(" KATUP 4 AKTIF  "));
+      break;
+    default:
+      break;
+  }
 }
