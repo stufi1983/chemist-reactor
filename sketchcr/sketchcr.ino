@@ -1,5 +1,5 @@
 //ATMega8535 8 MHz
-const int analogInPin = 30;  // Analog input pin that the potentiometer is attached to
+const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
 const int analogOutPin = 13; // Analog output pin that the LED is attached to
 
 int sensorValue = 0;        // value read from the pot
