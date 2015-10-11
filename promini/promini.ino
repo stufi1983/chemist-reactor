@@ -127,6 +127,10 @@ void Display(byte tampil )
 {
   displayNum = tampil - 0x30; lcd.noCursor();
   switch (tampil) {
+    case  0:
+      lcd.setCursor(0, 0); lcd.print(F(" MEMBACA SENSOR "));
+      lcd.setCursor(0, 1); lcd.print(F(" HARAP MENUNGGU "));
+      break;
     case  1:
       lcd.setCursor(0, 0); lcd.print(F("ALAT KOAGULASI &"));
       lcd.setCursor(0, 1); lcd.print(F("DISINFEKTAN AIR "));
