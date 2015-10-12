@@ -32,8 +32,11 @@ int BakARpm = 50;
 int BakBRpm = 50;
 
 #define MOTORC    12 //PD4  --->HARUSNYA DI OUTPUT TIMER
+#define POTMOTORC A7
 int BakCRpm = 100;
+
 #define MOTORD    13 //PD5  --->HARUSNYA DI OUTPUT TIMER
+#define POTMOTORD A6
 int BakDRpm = 50;
 
 #define PERISA    19 //PC3
@@ -163,10 +166,10 @@ void loop() {
 
     case 1:
       //2 Bak C DC 100%
-      analogWrite(MOTORC,255);
+      analogWrite(MOTORC,map(analogRead(POTMOTORC), 0, 1023, 0, 255));
 
       //3 Bak D 50%
-      analogWrite(MOTORD,128);
+      analogWrite(MOTORC,map(analogRead(POTMOTORD), 0, 1023, 0, 255));
 
       //4 Tampil kondisi Motor Pengaduk
       beep(100);
