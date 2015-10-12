@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="6.1">
+<eagle version="6.6.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -15464,18 +15464,20 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="261.62" y1="157.48" x2="271.78" y2="157.48" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="N$20" class="0">
+<net name="ADCMC" class="0">
 <segment>
 <pinref part="IC1" gate="G$1" pin="(ADC7)PA7"/>
 <pinref part="JP2" gate="A" pin="1"/>
 <wire x1="144.78" y1="137.16" x2="160.02" y2="137.16" width="0.1524" layer="91"/>
+<label x="147.32" y="137.16" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$21" class="0">
+<net name="ADCMD" class="0">
 <segment>
 <pinref part="JP2" gate="A" pin="2"/>
 <pinref part="IC1" gate="G$1" pin="(ADC6)PA6"/>
 <wire x1="160.02" y1="134.62" x2="144.78" y2="134.62" width="0.1524" layer="91"/>
+<label x="147.32" y="134.62" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$22" class="0">
@@ -15506,18 +15508,20 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="160.02" y1="124.46" x2="144.78" y2="124.46" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="N$26" class="0">
+<net name="KATUP1" class="0">
 <segment>
 <pinref part="IC1" gate="G$1" pin="(SS)PB4"/>
 <pinref part="JP3" gate="A" pin="1"/>
 <wire x1="144.78" y1="106.68" x2="160.02" y2="106.68" width="0.1524" layer="91"/>
+<label x="144.78" y="106.68" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$27" class="0">
+<net name="KATUP2" class="0">
 <segment>
 <pinref part="JP3" gate="A" pin="2"/>
 <pinref part="IC1" gate="G$1" pin="(AIN1/INT2)PB3"/>
 <wire x1="160.02" y1="104.14" x2="144.78" y2="104.14" width="0.1524" layer="91"/>
+<label x="144.78" y="104.14" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$28" class="0">
@@ -15527,18 +15531,20 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="144.78" y1="101.6" x2="160.02" y2="101.6" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="N$29" class="0">
+<net name="KATUP3" class="0">
 <segment>
 <pinref part="JP3" gate="A" pin="4"/>
 <pinref part="IC1" gate="G$1" pin="(T1)PB1"/>
 <wire x1="160.02" y1="99.06" x2="144.78" y2="99.06" width="0.1524" layer="91"/>
+<label x="144.78" y="99.06" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$30" class="0">
+<net name="KATUP4" class="0">
 <segment>
 <pinref part="IC1" gate="G$1" pin="(T0/XCK)PB0"/>
 <pinref part="JP3" gate="A" pin="5"/>
 <wire x1="144.78" y1="96.52" x2="160.02" y2="96.52" width="0.1524" layer="91"/>
+<label x="144.78" y="96.52" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$31" class="0">
@@ -15548,25 +15554,28 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <pinref part="JP4" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="N$32" class="0">
+<net name="BUZZ" class="0">
 <segment>
 <pinref part="IC1" gate="G$1" pin="(ICP)PD6"/>
 <wire x1="160.02" y1="66.04" x2="144.78" y2="66.04" width="0.1524" layer="91"/>
 <pinref part="JP4" gate="G$1" pin="2"/>
+<label x="144.78" y="66.04" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$33" class="0">
+<net name="MOTORD" class="0">
 <segment>
 <pinref part="IC1" gate="G$1" pin="(OC1A)PD5"/>
 <wire x1="144.78" y1="63.5" x2="160.02" y2="63.5" width="0.1524" layer="91"/>
 <pinref part="JP4" gate="G$1" pin="3"/>
+<label x="144.78" y="63.5" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$34" class="0">
+<net name="MOTORC" class="0">
 <segment>
 <pinref part="IC1" gate="G$1" pin="(OC1B)PD4"/>
 <wire x1="160.02" y1="60.96" x2="144.78" y2="60.96" width="0.1524" layer="91"/>
 <pinref part="JP4" gate="G$1" pin="4"/>
+<label x="144.78" y="60.96" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$35" class="0">
@@ -15576,11 +15585,12 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <pinref part="JP4" gate="G$1" pin="5"/>
 </segment>
 </net>
-<net name="N$36" class="0">
+<net name="FLOWS" class="0">
 <segment>
 <pinref part="IC1" gate="G$1" pin="(INT0)PD2"/>
 <pinref part="JP4" gate="G$1" pin="6"/>
 <wire x1="144.78" y1="55.88" x2="160.02" y2="55.88" width="0.1524" layer="91"/>
+<label x="147.32" y="55.88" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$40" class="0">

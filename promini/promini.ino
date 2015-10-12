@@ -163,13 +163,13 @@ void Display(byte tampil )
       break;
     case  4:
       lcd.setCursor(0, 0); lcd.print(F("TIMER BAK-C=   s"));
-      lcd.setCursor(0, 1); lcd.print(F("DEBIT=     mL/s "));
+      lcd.setCursor(0, 1); lcd.print(F("DEBIT=      mL/s"));
       lcd.setCursor(13, 0);
       for (byte x = 0; x < 2; x++) {
         lcd.write(bytes[x + 2]);
       }
       lcd.setCursor(7, 1);
-      for (byte x = 0; x < 3; x++) {
+      for (byte x = 0; x < 4; x++) {
         lcd.write(bytes[x + 4]);
       }
       break;
@@ -228,18 +228,18 @@ void Display(byte tampil )
 
       break;
     case  10:
-      lcd.setCursor(0, 0); lcd.print(F("LEVEL pH AIR= , "));
-      lcd.setCursor(0, 1); lcd.print(F("VOL DISINFEK=   "));
-      lcd.setCursor(13, 0);
+      lcd.setCursor(0, 0); lcd.print(F("LEVEL pH  = ,   "));
+      lcd.setCursor(0, 1); lcd.print(F("VOL DISINF=   mL"));
+      lcd.setCursor(9, 0);
       for (byte x = 0; x < 1; x++) {
         lcd.write(bytes[x + 2]);
       }
-      lcd.setCursor(15, 0);
+      lcd.setCursor(11, 0);
       for (byte x = 0; x < 1; x++) {
         lcd.write(bytes[x + 3]);
       }
-      lcd.setCursor(13, 1);
-      for (byte x = 0; x < 1; x++) {
+      lcd.setCursor(11, 1);
+      for (byte x = 0; x < 3; x++) {
         lcd.write(bytes[x + 4]);
       }
       break;
