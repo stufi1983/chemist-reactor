@@ -3,9 +3,10 @@
 #define FLOWINTERRUPT   //koneksi flow sensor,pilih: FLOWINTERRUPT di pin INT0/16 atau FLOWDIGITAL di pin PA1/39
 
 //NB: urutan pin header untukflow sensor di PCB tidak pas dengan sensor
-#define CEKFLOW         //test Flow Sensor, pilih: CEKFLOW untuk test atau NOTCEKFLOW untuk normal
+#define NOTCEKFLOW         //test Flow Sensor, pilih: CEKFLOW untuk test atau NOTCEKFLOW untuk normal
 #define NOTCEKPH           //test ph meter, pilih: CEKPH untuk test atau NOTCEKPH untuk normal
-
+#define NOTCEKKP           //test keypad
+#define CEKPOT          //test potensio pengatur putaran
 #define PL(x) {Serial.println(x);  Serial.write(12);}
 #define P(x) {Serial.print(x);}
 #define L() Serial.write(12);}
@@ -21,7 +22,7 @@
 //Timer masih dummy
 #define TIMERBAKA  30
 #define TIMERBAKB  30
-#define TIMERBAKC  30 
+#define TIMERBAKC  30
 #define TIMERBAKD  12  //1800 
 #define TIMERBAKE  12  //3600*4 
 #define TIMERBAKF  12  //3600 
@@ -90,7 +91,7 @@ bool ok = false;
 Note: Sertiap mensampling, pH harus dicuci/dibersihkan dari sisa larutan yang menempel di elektroda dengan larutan standar keasaman 7.0  ---> kalau di bak harus air mengalir ????
 Cara kalibrasi:
 1. Taruh elektroda pada larutan pH 7.0 (atau hubungkan singkat konektor BNC).
-2. Bandingkan pH dengan yang terbaca, jika tidak 7.0 maka sesuaikan offset. 
+2. Bandingkan pH dengan yang terbaca, jika tidak 7.0 maka sesuaikan offset.
    Contoh: pH terbaca 6.88, maka offset (selisih) 0.12 dituliskan di "# define Offset 0.12".
 3. Taruh elektroda pH pada larutan pH 4.00 dan tunggu hingga stabil
 4. Kalibrasi potension hingga pH terbaca 4.00.
@@ -116,6 +117,10 @@ void setup() {
 #endif
 
 #ifdef CEKPH
+  state = 8;
+#endif
+
+#ifdef CEKKP
   state = 8;
 #endif
 }
@@ -154,6 +159,9 @@ void resetPin() {
 }
 
 void loop() {
+  int potCValue = 0;
+  int potDValue = 0;
+
   switch (state) {
     case 0:
       for (byte i = 0; i < 5; i++) {
@@ -165,20 +173,29 @@ void loop() {
       break;
 
     case 1:
-      //2 Bak C DC 100%
-      analogWrite(MOTORC,map(analogRead(POTMOTORC), 0, 1023, 0, 255));
+      while (!keypadEntry) {
+        //2 Bak C DC 100%
+        potCValue = analogRead(POTMOTORC);
+        analogWrite(MOTORC, map(potCValue, 0, 1023, 0, 255));
+        BakCRpm = potCValue / 10; if (BakCRpm > 100) BakCRpm = 100;
 
-      //3 Bak D 50%
-      analogWrite(MOTORC,map(analogRead(POTMOTORD), 0, 1023, 0, 255));
+        //3 Bak D 50%
+        potDValue = analogRead(POTMOTORD);
+        analogWrite(MOTORC, map(potDValue, 0, 1023, 0, 255));
+        BakDRpm = potDValue / 10; if (BakDRpm > 100) BakDRpm = 100;
 
-      //4 Tampil kondisi Motor Pengaduk
-      beep(100);
-      P("D2");
-      int2byte(BakCRpm, 3);
-      int2byte(BakDRpm, 3);
-      Serial.write(12);
-      delay(5000);
-      state++;
+        //4 Tampil kondisi Motor Pengaduk
+        beep(100);
+        P("D2");
+        int2byte(BakCRpm, 3);
+        int2byte(BakDRpm, 3);
+        Serial.write(12);
+        delay(500); //eliminate LCD blinking
+      }
+#ifdef NOTCEKPOT
+        beep(100);
+        state++;
+#endif
       break;
 
     case 2:
@@ -252,8 +269,8 @@ void loop() {
       Serial.write(12);
       //9 aktifkan peristaltik B n detik
       //dummy, delay berdasar volKoagulan / debitPB setiap detik, sementara 1000 ms  ---------
-      debitPB = DEBITPERISB; 
-      digitalWrite(PERISB, HIGH); delay(volKoagulan/debitPB*1000); digitalWrite(PERISB, LOW);
+      debitPB = DEBITPERISB;
+      digitalWrite(PERISB, HIGH); delay(volKoagulan / debitPB * 1000); digitalWrite(PERISB, LOW);
       //10 set timer 30 detik
       timerBakC = 0;
       beep(100);
@@ -290,7 +307,7 @@ void loop() {
       timerBakD = 0;
       delay(2000);
       //aktifkan katup 1
-      digitalWrite(KATUP1,HIGH);
+      digitalWrite(KATUP1, HIGH);
       state++;       beep(100);
       break;
 
@@ -310,13 +327,13 @@ void loop() {
     case 7:
       //15 matikan timer
       //aktifkan katup 2
-      digitalWrite(KATUP1,HIGH);
-      
+      digitalWrite(KATUP1, HIGH);
+
       P("D8");
       int2byte((timerBakD) / 60, 2);
       Serial.write(12);
       delay(2000);//dummy
-      
+
       //16 tampilkan daya ikat klor
       beep(100);
       P("D9");
@@ -327,10 +344,11 @@ void loop() {
 
       P("D9"); int2byte(kadarKoa, 4);
       Serial.write(12);
-      delay(2000);
-
-      state++;
       beep(100);
+      delay(2000);
+#ifdef NOTCEKKP
+      state++;
+#endif
       break;
 
     case 8:
@@ -375,7 +393,7 @@ void loop() {
       delay(5000);
       //18 aktifkan peristaltik A n detik
       debitPA = DEBITPERISA;
-      digitalWrite(PERISA, HIGH); delay(volLarDisinfect/debitPA*1000); digitalWrite(PERISA, LOW);
+      digitalWrite(PERISA, HIGH); delay(volLarDisinfect / debitPA * 1000); digitalWrite(PERISA, LOW);
       //19 start timer 4 (4 jam)
       timerBakE = 0;
       state++;
@@ -533,8 +551,8 @@ void beep(byte dur) {
   digitalWrite(BUZZER, LOW);
 }
 
-int hitungVolLarDisinfektan(int pHValue){
-  if( pHValue >= 6 && pHValue < 7) return 1;
-  if( pHValue >= 7 && pHValue < 8) return 2;
+int hitungVolLarDisinfektan(int pHValue) {
+  if ( pHValue >= 6 && pHValue < 7) return 1;
+  if ( pHValue >= 7 && pHValue < 8) return 2;
 
 }
