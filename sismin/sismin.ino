@@ -161,11 +161,11 @@ void resetPin() {
 int BakCRpm = 100;
 int BakDRpm = 50;
 
-  int timerBakC = 0;
-  int timerBakD = 0; //30 minutes
-  int timerBakE = 0; //1 hour
-  int timerBakF = 0; //1 hour
-  
+int timerBakC = 0;
+int timerBakD = 0; //30 minutes
+int timerBakE = 0; //1 hour
+int timerBakF = 0; //1 hour
+
 void loop() {
   byte dgt = 0;
   int potCValue = 0;
@@ -292,17 +292,22 @@ void loop() {
             keypadEntry = true; //*
           }
           else if (kp < 50) { //press any key
-            beep(20);
-            if (dgt == 1)
-            {
-              kadarKoa = kadarKoa * 10 + mapkp(kp);
-              dgt = 0;
+            if (kadarKoa <= 999) {
+              beep(12);
+              if (dgt == 1)
+              {
+                kadarKoa = kadarKoa * 10 + mapkp(kp);
+                dgt = 0;
+              }
+              else
+                kadarKoa = mapkp(kp);
+              dgt++;
+            } else {
+              kadarKoa = 0;
+              beep(120);
             }
-            else
-              kadarKoa = mapkp(kp);
-            dgt++;
           }
-          if (kadarKoa >= 9999) kadarKoa = 0;
+
 
         }
 #ifdef CEKKP
