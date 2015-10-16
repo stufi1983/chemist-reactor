@@ -1,4 +1,4 @@
-//ATMega8535 8 MHz
+//ATMega8535 8 MHz 
 //
 const byte rows = 4;           //number of rows of keypad
 const byte columns = 4;          //number of columnss of keypad
