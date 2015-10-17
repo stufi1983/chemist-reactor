@@ -1,4 +1,4 @@
-//ATMega8535 8 MHz 
+//ATMega8535 8 MHz
 //
 const byte rows = 4;           //number of rows of keypad
 const byte columns = 4;          //number of columnss of keypad
@@ -10,8 +10,10 @@ const byte Input[columns] = {29, 28, 27, 26}; //array of pins used as input for 
 //NB: urutan pin header untukflow sensor di PCB tidak pas dengan sensor
 #define NOTCEKFLOW         //test Flow Sensor, pilih: CEKFLOW untuk test atau NOTCEKFLOW untuk normal
 #define NOTCEKPH           //test ph meter, pilih: CEKPH untuk test atau NOTCEKPH untuk normal
-#define CEKKP           //test keypad
+#define NOTCEKKP           //test keypad
 #define NOTCEKPOT          //test potensio pengatur putaran
+#define NOTCEKPERIST       //test pompa peristaltik
+
 #define PL(x) {Serial.println(x);  Serial.write(12);}
 #define P(x) {Serial.print(x);}
 #define L() Serial.write(12);}
@@ -54,27 +56,27 @@ byte byteNum = 0;
 byte int2bytebuf[MAXDIGIT];
 
 #define FLOWSENSOR  A1 //PA1 -->HARUSNYA DI PIN INTERRUPT
-int debit = 1;
-int RisingEdgeCounter = 0;
+unsigned long debit = 1;
+unsigned int RisingEdgeCounter = 0;
 volatile int RisingEdgeCounterInt;
 unsigned long startMillis;
-unsigned long duration = 1000; //1000 ms
+unsigned long duration = 2000; //1000 ms
 unsigned long currMillis = 0;
 bool buttonState = LOW;
 bool lastButtonState = LOW;
 
-int kadarKoa = 0;
+unsigned int kadarKoa = 0;
 unsigned long volKoagulan = 0;
-int dayaIkat = 0;
+unsigned int dayaIkat = 0;
 
 #define PHMETER  A0
-int ph = 72;
+unsigned int ph = 72;
 #define Offset -0.38        //kalibrasi jika perlu
 #define samplingInterval 2
 #define phReadDuration 1000
 #define ArrayLenth  40    //jumlah sample per frame
-int pHArray[ArrayLenth];
-int pHArrayIndex = 0;
+unsigned int pHArray[ArrayLenth];
+unsigned int pHArrayIndex = 0;
 static float pHValue, lastpHValue, voltage;
 static unsigned long samplingTime;
 bool ok = false;
@@ -90,11 +92,11 @@ Cara kalibrasi:
 */
 
 
-int volLarDisinfect = 1;
+unsigned int volLarDisinfect = 1;
 
 
 bool keypadEntry = false;
-int inputVal = 0;
+unsigned int inputVal = 0;
 
 byte state = 0;
 unsigned long startMilis;
@@ -118,36 +120,40 @@ void setup() {
 }
 
 void resetPin() {
+  const byte OutputPin[] = {BUZZER, KATUP1, KATUP2, KATUP3, KATUP4, MOTORA, MOTORB, MOTORC, MOTORD, PERISA, PERISB, FLOWSENSOR};
+  for (byte i = 0; i < sizeof(OutputPin); i++) {
+    pinMode(OutputPin[i], OUTPUT); digitalWrite(OutputPin[i], LOW);
+  }
+  /*
+    pinMode(BUZZER, OUTPUT);
+    digitalWrite(BUZZER, LOW);
 
-  pinMode(BUZZER, OUTPUT);
-  digitalWrite(BUZZER, LOW);
+    pinMode(KATUP1, OUTPUT);
+    digitalWrite(KATUP1, LOW);
+    pinMode(KATUP2, OUTPUT);
+    digitalWrite(KATUP2, LOW);
+    pinMode(KATUP3, OUTPUT);
+    digitalWrite(KATUP3, LOW);
+    pinMode(KATUP4, OUTPUT);
+    digitalWrite(KATUP4, LOW);
 
-  pinMode(KATUP1, OUTPUT);
-  digitalWrite(KATUP1, LOW);
-  pinMode(KATUP2, OUTPUT);
-  digitalWrite(KATUP2, LOW);
-  pinMode(KATUP3, OUTPUT);
-  digitalWrite(KATUP3, LOW);
-  pinMode(KATUP4, OUTPUT);
-  digitalWrite(KATUP4, LOW);
+    pinMode(MOTORA, OUTPUT);
+    digitalWrite(MOTORA, LOW);
+    pinMode(MOTORB, OUTPUT);
+    digitalWrite(MOTORB, LOW);
+    pinMode(MOTORC, OUTPUT);
+    digitalWrite(MOTORC, LOW);
+    pinMode(MOTORD, OUTPUT);
+    digitalWrite(MOTORD, LOW);
 
-  pinMode(MOTORA, OUTPUT);
-  digitalWrite(MOTORA, LOW);
-  pinMode(MOTORB, OUTPUT);
-  digitalWrite(MOTORB, LOW);
-  pinMode(MOTORC, OUTPUT);
-  digitalWrite(MOTORC, LOW);
-  pinMode(MOTORD, OUTPUT);
-  digitalWrite(MOTORD, LOW);
+    pinMode(PERISA, OUTPUT);
+    digitalWrite(PERISA, LOW);
+    pinMode(PERISB, OUTPUT);
+    digitalWrite(PERISB, LOW);
 
-  pinMode(PERISA, OUTPUT);
-  digitalWrite(PERISA, LOW);
-  pinMode(PERISB, OUTPUT);
-  digitalWrite(PERISB, LOW);
-
-  pinMode(FLOWSENSOR, INPUT);
-  digitalWrite(FLOWSENSOR, HIGH);
-
+    pinMode(FLOWSENSOR, INPUT);
+    digitalWrite(FLOWSENSOR, HIGH);
+  */
   for (byte i = 0; i < rows; i++) //for loop used to make pin mode of outputs as output
   {
     pinMode(Output[i], OUTPUT);
@@ -158,24 +164,19 @@ void resetPin() {
   }
 }
 
-int BakCRpm = 100;
-int BakDRpm = 50;
+unsigned int BakCRpm = 100;
+unsigned int BakDRpm = 50;
 
-int timerBakC = 0;
-int timerBakD = 0; //30 minutes
-int timerBakE = 0; //1 hour
-int timerBakF = 0; //1 hour
+unsigned int timerBakC = 0;
+unsigned int timerBakD = 0; //30 minutes
+unsigned int timerBakE = 0; //1 hour
+unsigned int timerBakF = 0; //1 hour
 
 void loop() {
   byte dgt = 0;
-  int potCValue = 0;
-  int potDValue = 0;
 
-
-
-  const unsigned long period = 50; //little period used to prevent error
+  const unsigned long period = 15; //little period used to prevent error
   unsigned long kdelay = 0;      // variable used in non-blocking delay
-
 
   switch (state) {
     case 0:
@@ -193,13 +194,13 @@ void loop() {
       while (!keypadEntry)
       {
         //2 Bak C DC 100%
-        potCValue = analogRead(POTMOTORC);
+        unsigned int potCValue = analogRead(POTMOTORC);
         analogWrite(MOTORC, map(potCValue, 0, 1023, 0, 255));
         BakCRpm = potCValue / 10; if (BakCRpm > 100) BakCRpm = 100;
 
         //3 Bak D 50%
-        potDValue = analogRead(POTMOTORD);
-        analogWrite(MOTORC, map(potDValue, 0, 1023, 0, 255));
+        unsigned int potDValue = analogRead(POTMOTORD);
+        analogWrite(MOTORD, map(potDValue, 0, 1023, 0, 255));
         BakDRpm = potDValue / 10; if (BakDRpm > 100) BakDRpm = 100;
 
         //4 Tampil kondisi Motor Pengaduk
@@ -209,15 +210,11 @@ void loop() {
         Serial.write(12);
         delay(500); //eliminate LCD blinking
 
-        if (millis() - kdelay > period) //used to make non-blocking delay
-        {
-          kdelay = millis(); //capture time from millis function
-          if (keypad() < 50) { //press any key
-            beep(100);
-            delay(1000);
-            keypadEntry = true;
-          }
+        if (keypad() < 50) { //press any key
+          beep(100);
+          keypadEntry = true;
         }
+
       }
 #ifdef NOTCEKPOT
       state++;
@@ -227,11 +224,14 @@ void loop() {
 
     case 2:
       //5 hitung debit dr sensor
+#ifdef NOTCEKFLOW
+      P("D0");
+      Serial.write(12);
+#endif
       //Harusnya sensor ada di pin Interrupt, krn prinsip kerjanya menghitung rising edge dalam 1 detik
       //Jadi mungkin tidak presisi
       RisingEdgeCounter = 0;
       startMillis = millis();
-      debit = 1;
 
 #ifdef FLOWINTERRUPT //pakai interrupt 0 / PD2 / D10 /pin ic 16
       RisingEdgeCounterInt = 0;
@@ -242,7 +242,6 @@ void loop() {
       }
       //cli();
       debit = (RisingEdgeCounterInt * 60 / 7.5); //Flow rate per jam = (Pulse frequency x 60) / 7.5Q
-      RisingEdgeCounterInt = 0;
 #else      //pakai digital pin kadang tidak pas
       while (millis() - startMillis < duration) {
         digitalWrite(FLOWSENSOR, HIGH);
@@ -259,21 +258,22 @@ void loop() {
 
       debit = debit * 1000;  //ml per Jam
       debit = debit / 3600; //ml per detik
+      if (debit == 0)debit = 1;
 
 
 #ifdef CEKFLOW     //hack untuk cek flowmeter
-      beep(100);
+      //beep(100);
       P("D4");
       int2byte(timerBakC, 2);
       int2byte(debit, 4);
       Serial.write(12);
-      delay(100);
+      //delay(100);
 #else
       //6
       beep(100);
       P("D3");
       Serial.write(12);
-      delay(2000);
+      //delay(2000);
       //kadarKoa = 0;
       keypadEntry = false;
       //dgt = 0;
@@ -284,41 +284,32 @@ void loop() {
         {
           kdelay = millis(); //capture time from millis function
           byte kp = keypad();
-          if (kp == 12) {
-            kadarKoa = 0;  //*
-            dgt = 0;
-          }
-          else if (kp == 14) {
-            keypadEntry = true; //*
+          if (kp == 14) { //# - OK
+            beep(12);
+            keypadEntry = true;
           }
           else if (kp < 50) { //press any key
-            if (kadarKoa <= 999) {
-              beep(12);
-              if (dgt == 1)
-              {
+            beep(12);
+            if (kp == 12) { //* - Clear
+              kadarKoa = 0;
+            } else  {
+              if (kadarKoa != 0)
                 kadarKoa = kadarKoa * 10 + mapkp(kp);
-                dgt = 0;
-              }
               else
                 kadarKoa = mapkp(kp);
-              dgt++;
-            } else {
-              kadarKoa = 0;
-              beep(120);
             }
+
+            if (kadarKoa > 9999) {
+              kadarKoa = 0;
+            }
+
+            P("D3"); int2byte(kadarKoa, 4);
+            Serial.write(12);
+
           }
-
-
         }
-#ifdef CEKKP
-        P("D3"); int2byte(kadarKoa, 4);
-        Serial.write(12);
-        delay(50);
-#endif
       }
       beep(100);
-      P("D3"); int2byte(kadarKoa, 4);
-      Serial.write(12);
       delay(2000);
       state++;
 #endif
@@ -326,19 +317,29 @@ void loop() {
 
     case 3:
       //7
-      volKoagulan = (kadarKoa * debit * 1000) / 50;
+      volKoagulan = (kadarKoa * debit * 20);
       //8 TAMPILKAN NILAI VOLUME TERHITUNG
+      //9 aktifkan peristaltik B n detik
+      //dummy, delay berdasar volKoagulan / debitPB setiap detik, sementara 1000 ms  ---------
+      P("D?"); Serial.write(12);
+      digitalWrite(PERISB, HIGH);
+      for (unsigned int i = 0; i < (volKoagulan / DEBITPERISB); i++) {
+        delay(1000);
+#ifdef CEKPERIST
+        P("D5");
+        int2byte(debit, 2);
+        int2byte(volKoagulan - i * DEBITPERISB, 6);
+        Serial.write(12);
+#endif
+        beep(2);
+      } digitalWrite(PERISB, LOW);
+      //10 set timer 30 detik
+      timerBakC = 0;
       beep(100);
       P("D4");
       int2byte(timerBakC, 2);
       int2byte(debit, 4);
       Serial.write(12);
-      //9 aktifkan peristaltik B n detik
-      //dummy, delay berdasar volKoagulan / debitPB setiap detik, sementara 1000 ms  ---------
-      digitalWrite(PERISB, HIGH); delay(volKoagulan / DEBITPERISB * 1000); digitalWrite(PERISB, LOW);
-      //10 set timer 30 detik
-      timerBakC = 0;
-      beep(100);
       for (byte i = 0; i < 5; i++) {
         P("D4");
         int2byte(timerBakC, 2);
@@ -347,7 +348,7 @@ void loop() {
         delay(1000); timerBakC++;
       }
       state++;
-      beep(100);
+      //beep(100);
       break;
 
     case 4:
@@ -357,6 +358,7 @@ void loop() {
       int2byte(timerBakC, 2);
       int2byte(volKoagulan, 6);
       Serial.write(12);
+
       delay(1000); timerBakC++;
       if (timerBakC >= TIMERBAKC) {
         beep(100);
@@ -392,7 +394,7 @@ void loop() {
     case 7:
       //15 matikan timer
       //aktifkan katup 2
-      digitalWrite(KATUP1, HIGH);
+      digitalWrite(KATUP2, HIGH);
 
       P("D8");
       int2byte((timerBakD) / 60, 2);
@@ -400,50 +402,43 @@ void loop() {
       delay(2000);//dummy
 
       //16 tampilkan daya ikat klor
-      beep(100);
       P("D9");
-      Serial.write(12);
-      delay(2000);
-      /******************
-            //dayaIkat = 2;                                             //dummy, baca keypad  ---------
-            keypadEntry = false;
-            dgt = 0;
-            while (!keypadEntry)
-            {
-              if (millis() - kdelay > period) //used to make non-blocking delay
-              {
-                kdelay = millis(); //capture time from millis function
-                byte kp = keypad();
-                if (kp == 12) {
-                  dayaIkat = 0;  //*
-                  dgt = 0;
-                }
-                else if (kp == 14) {
-                  keypadEntry = true; //*
-                }
-                else if (kp < 50) { //press any key
-                  beep(20);
-                  if (dgt == 1)
-                  {
-                    dayaIkat = dayaIkat * 10 + mapkp(kp);
-                    dgt = 0;
-                  }
-                  else
-                    dayaIkat = mapkp(kp);
-                  dgt++;
-                }
-
-              }
-      #ifdef CEKKP
-              P("D3"); int2byte(dayaIkat, 4);
-              Serial.write(12);
-              delay(50);
-      #endif
+      Serial.write(12);      beep(100);
+      //dayaIkat=1;
+      keypadEntry = false;
+      //dgt = 0;
+      while (!keypadEntry)
+      {
+        // kadarKoa = 4999;                                   //dummy, baca keypad  ---------
+        if (millis() - kdelay > period) //used to make non-blocking delay
+        {
+          kdelay = millis(); //capture time from millis function
+          byte kp = keypad();
+          if (kp == 14) { //# - OK
+            beep(12);
+            keypadEntry = true;
+          }
+          else if (kp < 50) { //press any key
+            beep(12);
+            if (kp == 12) { //* - Clear
+              dayaIkat = 0;
+            } else  {
+              if (dayaIkat != 0)
+                dayaIkat = dayaIkat * 10 + mapkp(kp);
+              else
+                dayaIkat = mapkp(kp);
             }
-            *************************/
 
-      P("D9"); int2byte(dayaIkat, 4);
-      Serial.write(12);
+            if (dayaIkat > 9999) {
+              dayaIkat = 0;
+            }
+
+            P("D9"); int2byte(dayaIkat, 4);
+            Serial.write(12);
+
+          }
+        }
+      }
       beep(100);
       delay(2000);
       state++;
@@ -477,24 +472,38 @@ void loop() {
       ph = (unsigned long)(pHValue * 10);
 
       //hitng volLarDisinfect berdasar tabel gunakan variable pHValue, ph hanya untuk tampilan LCD
-      volLarDisinfect = hitungVolLarDisinfektan(pHValue);
+      if (ph > 70)
+        volLarDisinfect = 20;
+      else
+        volLarDisinfect = 30;
 
-      beep(100);
+
       P("D:");
-      int2byte((int)ph / 10 , 1);
-      int2byte((int)ph % 10, 1);
+      int2byte((unsigned int)ph / 10 , 1);
+      int2byte((unsigned int)ph % 10, 1);
       int2byte(volLarDisinfect, 3);
       Serial.write(12);
-      beep(100);
+      delay(5000);
 
 #ifdef NOTCEKPH
-      delay(5000);
+      beep(20);
       //18 aktifkan peristaltik A n detik
-      digitalWrite(PERISA, HIGH); delay(volLarDisinfect / DEBITPERISA * 1000); digitalWrite(PERISA, LOW);
+      //digitalWrite(PERISA, HIGH); delay(volLarDisinfect / DEBITPERISA * 1000); digitalWrite(PERISA, LOW);
+      P("D?"); Serial.write(12);
+      digitalWrite(PERISA, HIGH); for (unsigned int i = 0; i < (volLarDisinfect / DEBITPERISA); i++) {
+        delay(1000);
+        //P("D?");
+        //int2byte(DEBITPERISA, 6);
+        //int2byte(volKoagulan - i * DEBITPERISA, 6);
+        //Serial.write(12);
+        beep(2);
+      } digitalWrite(PERISA, LOW);
+
       //19 start timer 4 (4 jam)
       timerBakE = 0;
       state++;
 #endif
+      beep(100);
       break;
 
     case 9:
@@ -507,14 +516,13 @@ void loop() {
       delay(1000);
       timerBakE++;
       if (timerBakE >= TIMERBAKE) {
-        beep(100);
         state++;
+        beep(100);
       }
       break;
 
     case 10:
       //21 matikan timer
-      beep(100);
       P("D<");
       int2byte((timerBakE) / 3600, 1);
       Serial.write(12);
@@ -522,6 +530,7 @@ void loop() {
       //22 aktifkan timer 1 jam
       timerBakF = 0;
       state++;
+      beep(100);
       break;
 
     case 11:
@@ -540,17 +549,30 @@ void loop() {
 
     case 12:
       //24 matikan timer aktifkan katup 4
+      digitalWrite(KATUP4, HIGH);
+
+      beep(100);
       P("D>");
       int2byte((timerBakF) / 3600, 1);
       Serial.write(12);
       delay(2000);
       //selesai ulang dari awal
       state++;
+      beep(1000);
       break;
 
     case 13:
       //dummy, baca keypad  untuk repeat / stop (default stop)---------
       resetPin();
+      keypadEntry = false;
+      while (!keypadEntry)
+      {
+        if (keypad() == 14) { //press any key
+          beep(100);
+          keypadEntry = true;
+          state = 0;
+        }
+      }
       break;
 
     default:
@@ -558,7 +580,7 @@ void loop() {
   }
 }
 
-void int2byte(int val, byte digit) {
+void int2byte(unsigned int val, byte digit) {
   int2byte((unsigned long)val, digit);
 }
 void int2byte(unsigned long val, byte digit) {
@@ -594,7 +616,7 @@ void int2byte(unsigned long val, byte digit) {
   }
 }
 
-double avergearray(int* arr, int number) {
+double avergearray(unsigned int* arr, int number) {
   int i;
   int max, min;
   double avg;
@@ -646,12 +668,6 @@ void beep(byte dur) {
   digitalWrite(BUZZER, HIGH);
   delay(dur);
   digitalWrite(BUZZER, LOW);
-}
-
-int hitungVolLarDisinfektan(int pHValue) {
-  if ( pHValue >= 6 && pHValue < 7) return 1;
-  if ( pHValue >= 7 && pHValue < 8) return 2;
-
 }
 
 byte keypad() // function used to detect which button is used

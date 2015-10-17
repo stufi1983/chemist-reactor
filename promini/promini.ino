@@ -150,11 +150,12 @@ void Display(byte tampil )
     case  3:
       lcd.setCursor(0, 0); lcd.print(F(" KADAR KOAGULAN "));
       lcd.setCursor(0, 1); lcd.print(F("ENTRY=      mg/s"));
-      lcd.setCursor(7, 1);
-      
+
       if (bytes[2] == 12) {
-         lcd.cursor();
+        lcd.setCursor(10, 1);
+        lcd.cursor();
       } else {
+        lcd.setCursor(7, 1);
         for (byte x = 0; x < 4; x++) {
           lcd.write(bytes[x + 2]);
         }
@@ -216,11 +217,12 @@ void Display(byte tampil )
     case  9:
       lcd.setCursor(0, 0); lcd.print(F("DAYA IKAT CHLOR "));
       lcd.setCursor(0, 1); lcd.print(F("ENTRY=      mg/s"));
-      lcd.setCursor(7, 1);
-      
+
       if (bytes[2] == 12) {
-         lcd.cursor();
+        lcd.setCursor(10, 1);
+        lcd.cursor();
       } else {
+        lcd.setCursor(7, 1);
         for (byte x = 0; x < 4; x++) {
           lcd.write(bytes[x + 2]);
         }
@@ -230,11 +232,11 @@ void Display(byte tampil )
     case  10:
       lcd.setCursor(0, 0); lcd.print(F("LEVEL pH  = ,   "));
       lcd.setCursor(0, 1); lcd.print(F("VOL DISINF=   mL"));
-      lcd.setCursor(9, 0);
+      lcd.setCursor(11, 0);
       for (byte x = 0; x < 1; x++) {
         lcd.write(bytes[x + 2]);
       }
-      lcd.setCursor(11, 0);
+      lcd.setCursor(13, 0);
       for (byte x = 0; x < 1; x++) {
         lcd.write(bytes[x + 3]);
       }
@@ -283,6 +285,18 @@ void Display(byte tampil )
       for (byte x = 0; x < 1; x++) {
         lcd.write(bytes[x + 2]);
       }
+      break;
+    case  15:
+      lcd.setCursor(0, 0); lcd.print(F("PROSES PENETESAN"));
+      lcd.setCursor(0, 1); lcd.print(F(" HARAP MENUNGGU "));
+      /*lcd.setCursor(7, 0);
+      for (byte x = 0; x < 6; x++) {
+        lcd.write(bytes[x + 2]);
+      }
+      lcd.setCursor(7, 1);
+      for (byte x = 0; x < 6; x++) {
+        lcd.write(bytes[x + 2]);
+      }*/
       break;
     default:
       break;
